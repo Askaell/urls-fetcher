@@ -31,10 +31,14 @@ func NewWebScanner(timeOut int) *WebScanner {
 }
 
 func (ws *WebScanner) MakeAllRequests(urls []*url.URL) []*RequestResult {
-	wg := ws.WaitGroup
+	go func(resultCh chan *RequestResult) {
+		ws.Wait()
+		close(ws.resultCh)
+	}(ws.resultCh)
+
 	for _, reqURL := range urls {
-		wg.Add(1)
-		go ws.makeRequestAndGetResults(wg, reqURL)
+		ws.Add(1)
+		go ws.makeRequestAndGetResults(reqURL)
 	}
 
 	results := make([]*RequestResult, len(urls))
@@ -47,8 +51,8 @@ func (ws *WebScanner) MakeAllRequests(urls []*url.URL) []*RequestResult {
 	return results
 }
 
-func (ws *WebScanner) makeRequestAndGetResults(wg *sync.WaitGroup, reqURL *url.URL) {
-	defer wg.Done()
+func (ws *WebScanner) makeRequestAndGetResults(reqURL *url.URL) {
+	defer ws.Done()
 
 	start := time.Now()
 	status, err := ws.makeRequest(reqURL)

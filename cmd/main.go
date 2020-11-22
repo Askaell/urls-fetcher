@@ -17,7 +17,7 @@ func main() {
 
 	switch {
 	case len(os.Args[1:]) == 0:
-		parser = url_parser.NewJSONParser(readFile("/Users/admin/go/src/web-pinger/urls.json"))
+		parser = url_parser.NewJSONParser(readFile("/Users/admin/go/src/urls-fetcher/urls.json"))
 	default:
 		parser = url_parser.NewArgsParser()
 	}
@@ -28,7 +28,9 @@ func main() {
 
 	result := webScanner.MakeAllRequests(urls)
 
-	fmt.Println(result)
+	for _, res := range result {
+		fmt.Println(res)
+	}
 }
 
 func parseURL(parser *url_parser.Parser) []*url.URL {
