@@ -8,6 +8,10 @@ import (
 	"github.com/Askaell/urls-fetcher/pkg/url_parser"
 )
 
+var (
+	argsParser = url_parser.NewArgsParser()
+)
+
 type testCasePositive struct {
 	name           string
 	inputValue     []string
@@ -23,44 +27,7 @@ type testCaseNegative struct {
 	expectedResult bool
 }
 
-type testsAll struct {
-	testCasesPositive []*testCasePositive
-	testCasesNegative []*testCaseNegative
-}
-
-func runAllTests(t *testing.T, tests *testsAll, parser *url_parser.Parser) {
-	for _, testCasePositive := range tests.testCasesPositive {
-		os.Args = testCasePositive.inputValue
-
-		result, _ := parser.ParseToURL()
-
-		for i, r := range result {
-			if *testCasePositive.expectedResult[i] != *r {
-				t.Error(
-					testCasePositive.name, "failed!",
-					"For: ", testCasePositive.inputValue,
-					"Expected: ", testCasePositive.expectedResult,
-					"Got: ", result, "\n\n",
-				)
-			}
-		}
-	}
-}
-
-func TestArgsToUrlParser(t *testing.T) {
-	var negativeTests = []*testCaseNegative{
-		{
-			name:           "missing args",
-			inputValue:     []string{},
-			expectedResult: true,
-		},
-		{
-			name:           "parsing fail all urls",
-			inputValue:     []string{"", "itIsNotAnUrl"},
-			expectedResult: true,
-		},
-	}
-
+func TestPositive(t *testing.T) {
 	var stringUrl1 = "google.com"
 	var stringUrl2 = "https://yandex.ru"
 	var url1, _ = url.ParseRequestURI("https://" + stringUrl1)
@@ -68,27 +35,81 @@ func TestArgsToUrlParser(t *testing.T) {
 
 	var positiveTests = []*testCasePositive{
 		{
-			name:           "one arg, without url's scheme",
+			name:           "One arg, without url's scheme",
 			inputValue:     []string{"", stringUrl1},
 			expectedResult: []*url.URL{url1},
 		},
 		{
-			name:           "one arg, with url's scheme",
+			name:           "One arg, with url's scheme",
 			inputValue:     []string{"", stringUrl2},
 			expectedResult: []*url.URL{url2},
 		},
 		{
-			name:           "several args, with url's scheme and without url's scheme",
+			name:           "Several args, with url's scheme and without url's scheme",
 			inputValue:     []string{"", stringUrl1, stringUrl2},
 			expectedResult: []*url.URL{url1, url2},
 		},
 	}
 
-	var tests = &testsAll{
-		testCasesPositive: positiveTests,
-		testCasesNegative: negativeTests,
-	}
-	var parser = url_parser.NewArgsParser()
+	argsParser := url_parser.NewArgsParser()
+	runPositiveTests(t, positiveTests, argsParser)
+}
 
-	runAllTests(t, tests, parser)
+func TestNegative(t *testing.T) {
+	var negativeTests = []*testCaseNegative{
+		{
+			name:           "Missing args. Must get an error",
+			inputValue:     []string{},
+			expectedResult: true,
+		},
+		{
+			name:           "Parsing fail all urls. Must get an error",
+			inputValue:     []string{"", "itIsNotAnUrl"},
+			expectedResult: true,
+		},
+	}
+
+	runNegativeTests(t, negativeTests, argsParser)
+}
+
+func runPositiveTests(t *testing.T, positiveTests []*testCasePositive, parser *url_parser.Parser) {
+	for _, testCase := range positiveTests {
+		os.Args = testCase.inputValue
+
+		result, _ := parser.ParseToURL()
+
+		for i, r := range result {
+			if *testCase.expectedResult[i] != *r {
+				t.Error(
+					testCase.name, "failed!",
+					"For: ", testCase.inputValue,
+					"Expected: ", testCase.expectedResult,
+					"Got: ", result, "\n\n",
+				)
+			}
+		}
+	}
+}
+
+func runNegativeTests(t *testing.T, negativeTests []*testCaseNegative, parser *url_parser.Parser) {
+	for _, testCase := range negativeTests {
+		var result bool
+
+		os.Args = testCase.inputValue
+
+		_, err := parser.ParseToURL()
+
+		if err != nil {
+			result = true
+		}
+
+		if !result {
+			t.Error(
+				"\nTest case: ", testCase.name,
+				"For: ", testCase.inputValue,
+				"Expected: ", testCase.expectedResult,
+				"Got: ", result, "\n\n",
+			)
+		}
+	}
 }
