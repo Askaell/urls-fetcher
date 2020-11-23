@@ -11,6 +11,9 @@ import (
 	"github.com/Askaell/urls-fetcher/pkg/web_scanner"
 )
 
+//timeout for a http client of the web_scanner struct
+const timeout = 5
+
 func main() {
 	var urls []*url.URL
 	var parser *url_parser.Parser
@@ -23,9 +26,7 @@ func main() {
 	}
 
 	urls = parseURL(parser)
-
-	webScanner := web_scanner.NewWebScanner(5)
-
+	webScanner := web_scanner.NewWebScanner(timeout)
 	result := webScanner.MakeAllRequests(urls)
 
 	for _, res := range result {
