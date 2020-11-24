@@ -31,7 +31,11 @@ func (j *jsonParser) ParseToURL() ([]*url.URL, error) {
 	var parseFails int
 
 	for i, strURL := range urlsList.Urls {
-		parsedURL, err := url.Parse(strURL)
+		if !hasHTTPSPrefix(strURL) {
+			strURL = "https://" + strURL
+		}
+
+		parsedURL, err := url.ParseRequestURI(strURL)
 		if err != nil {
 			log.Printf("unable to parse as url string %s\n", strURL)
 			parseFails++

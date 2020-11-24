@@ -22,7 +22,17 @@ func (a *argsParser) ParseToURL() ([]*url.URL, error) {
 	var parseFails int
 
 	for i, arg := range os.Args[1:] {
-		parsedURL, err := url.Parse(arg)
+		if len(arg) == 0 {
+			log.Printf("unable to parse as url string %s\n", arg)
+			parseFails++
+			continue
+		}
+
+		if !hasHTTPSPrefix(arg) {
+			arg = "https://" + arg
+		}
+
+		parsedURL, err := url.ParseRequestURI(arg)
 		if err != nil {
 			log.Printf("unable to parse as url string %s\n", arg)
 			parseFails++

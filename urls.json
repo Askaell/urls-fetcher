@@ -1,8 +1,8 @@
 {
     "urls": [
-        "https://github.com",
-        "mail.ru",
         "google.com",
-        "https://yandex.ru"
+        "https://yandex.ru",
+        "https://github.com",
+        "mail.ru"
     ]
 }
