@@ -1,7 +1,6 @@
 package url_parser_test
 
 import (
-	"fmt"
 	"net/url"
 	"os"
 	"testing"
@@ -61,7 +60,7 @@ func TestNegative(t *testing.T) {
 		},
 		{
 			name:           "Parsing fail all urls. Must get an error",
-			inputValue:     []string{"", "itIsNotAnUrl"},
+			inputValue:     []string{"", ""},
 			expectedResult: true,
 		},
 	}
@@ -95,8 +94,7 @@ func runNegativeTests(t *testing.T, negativeTests []*testCaseNegative, parser *u
 		var result bool
 		os.Args = testCase.inputValue
 
-		a, err := parser.ParseToURL()
-		fmt.Println(a)
+		_, err := parser.ParseToURL()
 
 		if err != nil {
 			result = true
@@ -106,8 +104,8 @@ func runNegativeTests(t *testing.T, negativeTests []*testCaseNegative, parser *u
 			t.Error(
 				"\nTest case: ", testCase.name,
 				"For: ", testCase.inputValue,
-				"Expected: ", testCase.expectedResult,
-				"Got: ", result, "\n\n",
+				"Expected is error: ", testCase.expectedResult,
+				"Got is error: ", result, "\n\n",
 			)
 		}
 	}
