@@ -1,15 +1,12 @@
 package url_parser_test
 
 import (
+	"fmt"
 	"net/url"
 	"os"
 	"testing"
 
 	"github.com/Askaell/urls-fetcher/pkg/url_parser"
-)
-
-var (
-	argsParser = url_parser.NewArgsParser()
 )
 
 type testCasePositive struct {
@@ -59,7 +56,7 @@ func TestNegative(t *testing.T) {
 	var negativeTests = []*testCaseNegative{
 		{
 			name:           "Missing args. Must get an error",
-			inputValue:     []string{},
+			inputValue:     []string{""},
 			expectedResult: true,
 		},
 		{
@@ -68,6 +65,8 @@ func TestNegative(t *testing.T) {
 			expectedResult: true,
 		},
 	}
+
+	argsParser := url_parser.NewArgsParser()
 
 	runNegativeTests(t, negativeTests, argsParser)
 }
@@ -81,7 +80,7 @@ func runPositiveTests(t *testing.T, positiveTests []*testCasePositive, parser *u
 		for i, r := range result {
 			if *testCase.expectedResult[i] != *r {
 				t.Error(
-					testCase.name, "failed!",
+					"\nTest case: ", testCase.name,
 					"For: ", testCase.inputValue,
 					"Expected: ", testCase.expectedResult,
 					"Got: ", result, "\n\n",
@@ -94,10 +93,10 @@ func runPositiveTests(t *testing.T, positiveTests []*testCasePositive, parser *u
 func runNegativeTests(t *testing.T, negativeTests []*testCaseNegative, parser *url_parser.Parser) {
 	for _, testCase := range negativeTests {
 		var result bool
-
 		os.Args = testCase.inputValue
 
-		_, err := parser.ParseToURL()
+		a, err := parser.ParseToURL()
+		fmt.Println(a)
 
 		if err != nil {
 			result = true
