@@ -1,4 +1,4 @@
-package url_parser_test
+package args_to_url_parser_test
 
 import (
 	"net/url"
